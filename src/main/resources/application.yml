@@ -1,0 +1,33 @@
+#Server Port Information
+server:
+  port: 8888
+  servlet:
+    context-path: /@artifactId@
+#MongoDB Data Source Information
+spring:
+  data:
+    mongodb:
+      port: 27017
+      host: localhost
+      database: food_delivery_management_system
+      auto-index-creation: true
+  application:
+    name: @artifactId@
+app:
+  version: @version@
+  description: @description@
+  contact:
+    email: my.work111@outlook.com
+    website: https://ramsolutions.com
+  developer:
+    name: Ramanaiah Pade
+    email: ramanaiah.pade111@outlook.com
+
+
+#Enable MongoDB Query logging
+logging:
+  level:
+    org.springframework.data.mongodb.core.query: DEBUG
+  file:
+    name: user_app.log
+    path: logs
