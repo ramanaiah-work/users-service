@@ -8,6 +8,7 @@ import com.ramana.usersservice.exceptions.Error;
 import com.ramana.usersservice.service.UserService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,10 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -77,5 +77,47 @@ public class UserController {
     public ResponseEntity<UserLoginResponseDto> userLogin(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) {
         UserLoginResponseDto userLoginResponseDto = userService.validateUser(userLoginRequestDto);
         return ResponseEntity.ok(userLoginResponseDto);
+    }
+
+    @Operation(summary = "Get User By Id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User Details Fetched Successfully", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class)
+            )),
+            @ApiResponse(responseCode = "400", description = "Invalid Input", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Error.class)
+            )),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Error.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Error.class)
+            ))
+    })
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponseDto> getUserBydId(@Parameter(name = "userId", description = "Enter Registered User Id", required = true) @PathVariable("userId") String userId) {
+        UserResponseDto userResponseDto = userService.getUserById(userId);
+        return ResponseEntity.ok(userResponseDto);
+    }
+
+    @Operation(summary = "Get All Users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fetch All Users", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class)
+            )),
+            @ApiResponse(responseCode = "400", description = "Invalid Input", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Error.class)
+            )),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Error.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Error.class)
+            ))
+    })
+    @GetMapping("/allUsers")
+    public ResponseEntity<List<UserResponseDto>> searchUser() {
+        List<UserResponseDto> userResponseDto = userService.getAllUsers();
+        return ResponseEntity.ok(userResponseDto);
     }
 }
