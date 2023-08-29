@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private ModelMapper modelMapper;
 
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     /**
      * @param userRequestDto
      * @return
@@ -33,6 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto saveUser(UserRequestDto userRequestDto) {
         User user = modelMapper.map(userRequestDto, User.class);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserResponseDto.class);
     }
@@ -48,7 +52,7 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("'" + userLoginRequestDto.getUserNameOrEmail() + "' username Not Found in the system.");
         }
         String password = user.get().getPassword();
-        if (!password.equals(userLoginRequestDto.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(userLoginRequestDto.getPassword(),password)) {
             throw new BadRequestException("Username and Password not matched please try again");
         }
         return new UserLoginResponseDto("Logged in successfull", "200", "OK");
